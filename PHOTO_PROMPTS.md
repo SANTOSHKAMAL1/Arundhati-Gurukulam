@@ -78,19 +78,19 @@ Photorealistic documentary photograph, 16:10. An evening Sanskrit recitation on 
 
 ### Social media panel · **16:9** (1600×900)
 
-**social-1 — Ganesha Chaturthi clay murtis in the art room**
+**social-1 — Rudram recitation at morning assembly**
+```
+Photorealistic documentary photograph, 16:9. Indian students aged 9 to 15, in maroon and cream uniforms, stand in rows in a school courtyard and chant Vedic hymns with folded hands, while a teacher in a white dhoti and angavastram leads. A brass lamp and marigolds are in front of them. Early-morning golden light and a soft haze. Cream, terracotta, maroon and gold palette. Medium-wide shot from the side. Reverent and disciplined, candid. No text, no logos.
+```
+
+**social-2 — Ganesha Chaturthi clay murtis in the art room**
 ```
 Photorealistic documentary photograph, 16:9. An Indian school art room during Ganesha Chaturthi: children aged 8 to 12, in maroon and cream uniforms, shape small clay Ganesha murtis at a long wooden table. There is clay on their hands, and finished natural-clay idols line the table with a few marigold flowers. Warm daylight from a window. Cream, terracotta, maroon and gold palette. Overhead three-quarter angle with the hands and murtis in sharp focus. Joyful and creative. No text, no logos.
 ```
 
-**social-2 — Grade 8 debate prize at the inter-school shastra sabha**
+**social-3 — Grade 8 debate prize at the inter-school shastra sabha**
 ```
 Photorealistic documentary photograph, 16:9. Two Indian students of about 13, in maroon and cream uniforms, hold a brass trophy and a certificate on a modest school-hall stage, with a garland of marigolds on the trophy. A teacher in a saree stands beside them and smiles. The background is a warm pillared hall with a softly blurred audience. Warm indoor light. Cream, maroon, terracotta and gold palette. Shot on a 50mm lens. Proud and understated, natural expressions. The certificate text is unreadable, with no logos.
-```
-
-**social-3 — Rudram recitation at morning assembly**
-```
-Photorealistic documentary photograph, 16:9. Indian students aged 9 to 15, in maroon and cream uniforms, stand in rows in a school courtyard and chant Vedic hymns with folded hands, while a teacher in a white dhoti and angavastram leads. A brass lamp and marigolds are in front of them. Early-morning golden light and a soft haze. Cream, terracotta, maroon and gold palette. Medium-wide shot from the side. Reverent and disciplined, candid. No text, no logos.
 ```
 
 **social-v1 — Video still: "A year at Arundhati Gurukulam"** (a dark gradient and the title sit over the bottom third)
