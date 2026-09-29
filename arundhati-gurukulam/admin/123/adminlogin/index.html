@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Disclosure Admin · Arundhati Gurukulam</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caprasimo&family=Figtree:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f5ead8; --surface:#f9f4ed; --line:color-mix(in srgb,#201e1d 14%,transparent);
+  --text:#201e1d; --muted:#645c50; --maroon:#3b160b; --maroon-2:#5a1f0f; --rust:#a0391d;
+  --gold:#e5b826; --gold-soft:#fdecb4; --cream:#faf2e2; --ok:#2f6b3a; --ok-soft:#e3f1e2; --err:#9b2226; --err-soft:#fbe4e2;
+  --r-lg:22px; --r-md:14px; --shadow:0 12px 32px color-mix(in srgb,#2e2b25 18%,transparent);
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--text);font:15px/1.55 "Figtree",system-ui,sans-serif;min-height:100vh}
+h1,h2,h3{font-family:"Caprasimo",Georgia,serif;font-weight:400;margin:0;letter-spacing:-.01em}
+button,input{font:inherit}
+a{color:inherit}
+.hidden{display:none!important}
+
+/* top bar */
+.top{background:var(--maroon);color:var(--cream)}
+.top-in{max-width:1080px;margin:0 auto;padding:14px 16px;display:flex;align-items:center;gap:14px}
+.seal{width:40px;height:40px;border-radius:999px;background:var(--gold);color:var(--maroon);display:grid;place-items:center;font:700 14px/1 Georgia,serif;flex:none}
+.top h1{font-size:19px;line-height:1.1}
+.top small{display:block;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold)}
+.top .grow{flex:1;min-width:0}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:999px;border:1px solid transparent;padding:9px 18px;font-weight:600;font-size:14px;cursor:pointer;text-decoration:none;white-space:nowrap;transition:background .15s,border-color .15s}
+.btn:disabled{opacity:.55;cursor:default}
+.btn-gold{background:var(--gold);color:var(--maroon)}
+.btn-gold:hover:not(:disabled){background:#f0c93c}
+.btn-dark{background:var(--maroon);color:var(--cream)}
+.btn-dark:hover:not(:disabled){background:var(--maroon-2)}
+.btn-line{background:transparent;border-color:var(--line);color:var(--maroon)}
+.btn-line:hover:not(:disabled){background:#fff}
+.btn-ghost-light{background:transparent;border-color:color-mix(in srgb,var(--cream) 35%,transparent);color:var(--cream)}
+.btn-ghost-light:hover{background:color-mix(in srgb,var(--cream) 12%,transparent)}
+.btn-danger{background:transparent;border-color:color-mix(in srgb,var(--err) 35%,transparent);color:var(--err)}
+.btn-danger:hover:not(:disabled){background:var(--err-soft)}
+.btn-sm{padding:7px 13px;font-size:13px}
+
+/* login */
+.login-wrap{min-height:calc(100vh - 68px);display:grid;place-items:center;padding:24px 16px}
+.card{background:var(--surface);border-radius:var(--r-lg);box-shadow:var(--shadow)}
+.login{width:min(420px,100%);padding:30px 28px}
+.login h2{font-size:26px;line-height:1.1;margin-bottom:6px}
+.login p{margin:0 0 20px;color:var(--muted)}
+label{display:block;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:14px 0 6px}
+input[type=text],input[type=password]{width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:#fff;color:var(--text);outline:none}
+input:focus{border-color:var(--rust);box-shadow:0 0 0 3px color-mix(in srgb,var(--rust) 18%,transparent)}
+.login .btn{width:100%;margin-top:22px;padding:12px}
+.note{border-radius:12px;padding:11px 14px;font-size:13.5px;margin-top:14px}
+.note-err{background:var(--err-soft);color:var(--err)}
+.note-warn{background:var(--gold-soft);color:#6b4a00}
+
+/* dashboard */
+.main{max-width:1080px;margin:0 auto;padding:26px 16px 60px}
+.intro{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;justify-content:space-between;margin-bottom:18px}
+.intro h2{font-size:clamp(24px,3vw,32px);line-height:1.1}
+.intro p{margin:6px 0 0;color:var(--muted);max-width:60ch}
+.stats{display:flex;gap:8px;flex-wrap:wrap}
+.chip{border-radius:999px;padding:6px 12px;font-size:12.5px;font-weight:600;background:var(--surface);border:1px solid var(--line)}
+.chip b{color:var(--rust)}
+.section{margin-top:26px}
+.section h3{font-size:19px;display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.section h3::before{content:"";width:9px;height:9px;transform:rotate(45deg);background:var(--gold);border-radius:2px}
+.rows{display:grid;gap:12px}
+.row{background:var(--surface);border-radius:var(--r-md);border:1px solid var(--line);padding:16px;display:grid;grid-template-columns:44px minmax(0,1fr);gap:14px;align-items:start}
+.num{width:44px;height:44px;border-radius:12px;background:var(--maroon);color:var(--gold);display:grid;place-items:center;font:400 16px/1 "Caprasimo",Georgia,serif}
+.row-title{font-weight:600;line-height:1.4}
+.row-note{font-size:13px;color:var(--muted);margin-top:2px}
+.status{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:10px;font-size:13px}
+.badge{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:4px 10px;font-size:12px;font-weight:600}
+.b-up{background:var(--ok-soft);color:var(--ok)}
+.b-built{background:var(--gold-soft);color:#6b4a00}
+.b-none{background:#efe7da;color:var(--muted)}
+.file{color:var(--muted);overflow-wrap:anywhere}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.bar{height:6px;border-radius:999px;background:#eadfcd;overflow:hidden;margin-top:12px}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--rust),var(--gold));transition:width .2s}
+.msg{font-size:13px;margin-top:8px}
+.msg.ok{color:var(--ok)} .msg.err{color:var(--err)}
+.drop{outline:2px dashed var(--rust);outline-offset:3px}
+.foot{margin-top:34px;font-size:13px;color:var(--muted)}
+@media (max-width:560px){ .row{grid-template-columns:1fr} .num{width:38px;height:38px} .top h1{font-size:16px} }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-in">
+    <span class="seal">AG</span>
+    <div class="grow"><small>Admin</small><h1>Mandatory Disclosure documents</h1></div>
+    <a class="btn btn-ghost-light btn-sm" href="/#disclosure" target="_blank" rel="noopener">View page</a>
+    <button id="logout" class="btn btn-ghost-light btn-sm hidden" type="button">Sign out</button>
+  </div>
+</header>
+
+<section id="login" class="login-wrap hidden">
+  <form id="login-form" class="card login" autocomplete="on">
+    <h2>Sign in</h2>
+    <p>Upload and replace the PDFs on the Mandatory Disclosure page.</p>
+    <label for="user">Username</label>
+    <input id="user" name="username" type="text" autocomplete="username" required>
+    <label for="password">Password</label>
+    <input id="password" name="password" type="password" autocomplete="current-password" required>
+    <button class="btn btn-dark" type="submit">Sign in</button>
+    <div id="login-err" class="note note-err hidden"></div>
+    <div id="setup-warn" class="note note-warn hidden"></div>
+  </form>
+</section>
+
+<main id="dash" class="main hidden">
+  <div class="intro">
+    <div>
+      <h2>Documents</h2>
+      <p>Upload a PDF against any row. It appears on the public page straight away, replacing the previous file for that row. Drag a PDF onto a row, or use Upload.</p>
+    </div>
+    <div class="stats"><span class="chip"><b id="count-up">0</b> uploaded</span><span class="chip"><b id="count-built">0</b> built-in</span><span class="chip"><b id="count-none">0</b> missing</span></div>
+  </div>
+  <div id="storage-warn" class="note note-warn hidden"></div>
+  <div id="sections"></div>
+  <p class="foot">Only PDF files, up to 40 MB each. Scanned documents are best saved at 150 dpi so they open quickly on phones.</p>
+</main>
+
+<input id="picker" type="file" accept="application/pdf,.pdf" class="hidden">
+
+<script type="module">
+import { upload } from '/admin/blob-upload.js';
+
+// Must match the rows of the Mandatory Disclosure page.
+const SECTIONS = [
+  { name: 'B. Documents and Information', rows: [
+    ['B1', 'Copies of Affiliation / Upgradation Letter and recent Extension of Affiliation, if any'],
+    ['B2', 'Copies of Societies / Trust / Company Registration / Renewal Certificate, as applicable'],
+    ['B3', 'Copy of No Objection Certificate (NOC) issued, if applicable, by the State Govt. / UT'],
+    ['B4', 'Copies of Recognition Certificate under RTE Act, 2009, and its renewal if applicable'],
+    ['B5', 'Copy of valid Building Safety Certificate as per the National Building Code'],
+    ['B6', 'Copy of valid Fire Safety Certificate issued by the Competent Authority'],
+    ['B7', 'Copy of the DEO Certificate submitted by the school for Affiliation / Upgradation / Extension of Affiliation, or Self Certification by the School'],
+    ['B8', 'Copies of valid Drinking Water, Health and Sanitation Certificates and Water Testing Report'],
+    ['B9', 'Built-up Area Certificate as per the Annexure-E'],
+    ['B10', 'Land Certificate strictly as per the Annexure-B'],
+    ['B11', 'Details of last 6-month salary of teaching and non-teaching staff'],
+    ['B12', 'Copy of valid Fire Safety Certificate issued by the Competent Authority']
+  ]},
+  { name: 'C. Result and Academics', rows: [
+    ['C1', 'Fee Structure of the School'],
+    ['C2', 'Annual Academic Calendar'],
+    ['C3', 'List of School Management Committee (SMC)'],
+    ['C4', 'List of Parents Teachers Association (PTA) Members']
+  ]},
+  { name: 'D. Staff (Teaching)', rows: [
+    ['D4', 'Total No. of Teachers'],
+    ['D6', 'Details of Special Educator'],
+    ['D7', 'Details of Counsellor & Wellness Teacher']
+  ]}
+];
+// Files shipped with the site; an upload for the same row takes precedence.
+const BUILT_IN = {
+  B4: '/docs/water-test-report-july-2026.pdf',
+  B7: '/docs/school-management-committee-2026-29.pdf',
+  B8: '/docs/water-test-report-july-2026.pdf',
+  B12: '/docs/fire-safety-recommendation-2026.pdf',
+  C3: '/docs/school-management-committee-2026-29.pdf'
+};
+
+const $ = (id) => document.getElementById(id);
+let docs = {};
+let pickFor = null;
+
+async function api(path, body) {
+  const r = await fetch(path, body === undefined ? { cache: 'no-store' } : {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
+  });
+  let j = {};
+  try { j = await r.json(); } catch (e) {}
+  if (!r.ok) throw Object.assign(new Error(j.error || ('Request failed (' + r.status + ')')), { status: r.status });
+  return j;
+}
+
+function show(which) {
+  $('login').classList.toggle('hidden', which !== 'login');
+  $('dash').classList.toggle('hidden', which !== 'dash');
+  $('logout').classList.toggle('hidden', which !== 'dash');
+}
+
+function sizeText(n) { return n ? (n / 1048576).toFixed(n > 1048576 ? 1 : 2) + ' MB' : ''; }
+function dateText(s) { try { return new Date(s).toLocaleString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }); } catch (e) { return ''; } }
+function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
+
+function render() {
+  let up = 0, built = 0, none = 0;
+  $('sections').innerHTML = SECTIONS.map(sec => `
+    <div class="section"><h3>${esc(sec.name)}</h3><div class="rows">${sec.rows.map(([key, title]) => {
+      const d = docs[key], b = BUILT_IN[key];
+      let badge, file = '', view = '';
+      if (d) { up++; badge = '<span class="badge b-up">● Uploaded</span>'; file = esc(d.name) + ' · ' + sizeText(d.size) + ' · ' + dateText(d.uploadedAt); view = d.url; }
+      else if (b) { built++; badge = '<span class="badge b-built">● Built-in file</span>'; file = esc(b.split('/').pop()); view = b; }
+      else { none++; badge = '<span class="badge b-none">○ No PDF yet</span>'; }
+      return `<div class="row" data-key="${key}">
+        <span class="num">${key.slice(1)}</span>
+        <div>
+          <div class="row-title">${esc(title)}</div>
+          <div class="status">${badge}<span class="file">${file}</span></div>
+          <div class="actions">
+            <button class="btn btn-dark btn-sm" data-act="upload" type="button">${d || b ? 'Replace PDF' : 'Upload PDF'}</button>
+            ${view ? `<a class="btn btn-line btn-sm" href="${esc(view)}" target="_blank" rel="noopener">View</a>` : ''}
+            ${d ? `<button class="btn btn-danger btn-sm" data-act="remove" type="button">Remove upload</button>` : ''}
+          </div>
+          <div class="bar hidden"><i></i></div>
+          <div class="msg"></div>
+        </div>
+      </div>`;
+    }).join('')}</div></div>`).join('');
+  $('count-up').textContent = up; $('count-built').textContent = built; $('count-none').textContent = none;
+}
+
+async function refresh() {
+  const j = await api('/api/disclosure-docs');
+  docs = j.docs || {};
+  render();
+}
+
+function rowEl(key) { return document.querySelector(`.row[data-key="${key}"]`); }
+function setMsg(key, text, kind) { const m = rowEl(key).querySelector('.msg'); m.textContent = text; m.className = 'msg ' + (kind || ''); }
+
+async function uploadFile(key, file) {
+  if (!file) return;
+  if (!/\.pdf$/i.test(file.name) && file.type !== 'application/pdf') { setMsg(key, 'Please choose a PDF file.', 'err'); return; }
+  if (file.size > 40 * 1048576) { setMsg(key, 'This file is larger than 40 MB. Please compress it first.', 'err'); return; }
+  const row = rowEl(key), bar = row.querySelector('.bar'), fill = bar.querySelector('i');
+  row.querySelectorAll('button').forEach(b => b.disabled = true);
+  bar.classList.remove('hidden'); fill.style.width = '0%';
+  setMsg(key, 'Uploading ' + file.name + '…');
+  try {
+    const safe = file.name.replace(/\.pdf$/i, '').replace(/[^a-zA-Z0-9._-]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 80) || 'document';
+    const blob = await upload(`disclosure/${key}/${safe}.pdf`, file, {
+      access: 'public',
+      contentType: 'application/pdf',
+      handleUploadUrl: '/api/admin/upload',
+      onUploadProgress: (p) => { fill.style.width = Math.round(p.percentage) + '%'; }
+    });
+    await api('/api/admin/delete', { key, keepUrl: blob.url }).catch(() => {});
+    await refresh();
+    setMsg(key, 'Uploaded. It is live on the page now.', 'ok');
+  } catch (e) {
+    if (/sign in/i.test(e.message)) { show('login'); return; }
+    row.querySelectorAll('button').forEach(b => b.disabled = false);
+    bar.classList.add('hidden');
+    setMsg(key, 'Upload failed: ' + e.message, 'err');
+  }
+}
+
+async function removeUpload(key) {
+  if (!confirm('Remove the uploaded PDF for this row?' + (BUILT_IN[key] ? ' The page will go back to the built-in file.' : ''))) return;
+  try { await api('/api/admin/delete', { key }); await refresh(); setMsg(key, 'Removed.', 'ok'); }
+  catch (e) { if (e.status === 401) show('login'); else setMsg(key, e.message, 'err'); }
+}
+
+$('sections').addEventListener('click', (e) => {
+  const btn = e.target.closest('button[data-act]'); if (!btn) return;
+  const key = btn.closest('.row').dataset.key;
+  if (btn.dataset.act === 'upload') { pickFor = key; $('picker').value = ''; $('picker').click(); }
+  if (btn.dataset.act === 'remove') removeUpload(key);
+});
+$('picker').addEventListener('change', () => { const f = $('picker').files[0]; if (pickFor && f) uploadFile(pickFor, f); });
+['dragover', 'dragleave', 'drop'].forEach(ev => $('sections').addEventListener(ev, (e) => {
+  const row = e.target.closest('.row'); if (!row) return;
+  e.preventDefault();
+  if (ev === 'dragover') row.classList.add('drop'); else row.classList.remove('drop');
+  if (ev === 'drop' && e.dataTransfer.files[0]) uploadFile(row.dataset.key, e.dataTransfer.files[0]);
+}));
+
+$('login-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  $('login-err').classList.add('hidden');
+  const btn = e.target.querySelector('button'); btn.disabled = true;
+  try {
+    await api('/api/admin/login', { user: $('user').value.trim(), password: $('password').value });
+    $('password').value = '';
+    await start();
+  } catch (err) {
+    $('login-err').textContent = err.message; $('login-err').classList.remove('hidden');
+  } finally { btn.disabled = false; }
+});
+$('logout').addEventListener('click', async () => { await api('/api/admin/logout', {}).catch(() => {}); show('login'); });
+
+async function start() {
+  let s;
+  try { s = await api('/api/admin/session'); }
+  catch (e) { show('login'); $('setup-warn').textContent = 'The admin service is not reachable. It works on the live site, not on a downloaded copy.'; $('setup-warn').classList.remove('hidden'); return; }
+  if (!s.passwordSet) { $('setup-warn').textContent = 'Sign-in is not set up yet: add ADMIN_PASSWORD in the Vercel project settings and redeploy.'; $('setup-warn').classList.remove('hidden'); }
+  if (!s.signedIn) { show('login'); $('user').focus(); return; }
+  show('dash');
+  $('storage-warn').classList.toggle('hidden', s.storageSet);
+  $('storage-warn').textContent = 'File storage is not connected yet: create a Blob store in Vercel (Storage → Blob) and connect it to this project, then redeploy. Until then uploads will fail.';
+  await refresh().catch(() => render());
+}
+start();
+</script>
+</body>
+</html>
