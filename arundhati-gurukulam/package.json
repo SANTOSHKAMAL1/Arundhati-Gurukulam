@@ -1,0 +1,9 @@
+{
+  "name": "arundhati-gurukulam",
+  "private": true,
+  "type": "module",
+  "description": "Arundhati Gurukulam website: static pages plus the disclosure admin API on Vercel.",
+  "dependencies": {
+    "@vercel/blob": "2.8.0"
+  }
+}
