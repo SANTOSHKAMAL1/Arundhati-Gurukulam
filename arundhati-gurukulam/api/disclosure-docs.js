@@ -1,6 +1,7 @@
-// Public list of PDFs uploaded through the admin page, latest per row.
+// Public list of files uploaded through the admin page (latest per row) and
+// the text saved there.
 import { list } from '@vercel/blob';
-import { PREFIX, latestByKey, sendJson } from './_auth.js';
+import { PREFIX, TEXT_PREFIX, cleanText, latestByKey, sendJson } from './_auth.js';
 
 export async function listAll(timeoutMs = 6000) {
   const blobs = [];
@@ -14,11 +15,34 @@ export async function listAll(timeoutMs = 6000) {
   return blobs;
 }
 
-export default async function handler(req, res) {
-  if (!process.env.BLOB_READ_WRITE_TOKEN) return sendJson(res, 200, { docs: {} });
+// Most recent saved-text file, or null.
+export function latestText(blobs) {
+  let best = null;
+  for (const b of blobs) {
+    if (!b.pathname.startsWith(TEXT_PREFIX)) continue;
+    if (!best || new Date(b.uploadedAt) > new Date(best.uploadedAt)) best = b;
+  }
+  return best;
+}
+
+async function readText(blobs) {
+  const b = latestText(blobs);
+  if (!b) return {};
   try {
-    sendJson(res, 200, { docs: latestByKey(await listAll()) });
+    // Each save gets a new URL (random suffix), so a cached copy is never stale.
+    const r = await fetch(b.url, { signal: AbortSignal.timeout(5000) });
+    return r.ok ? cleanText(await r.json()) : {};
   } catch (e) {
-    sendJson(res, 200, { docs: {}, error: 'storage unavailable' });
+    return {};
+  }
+}
+
+export default async function handler(req, res) {
+  if (!process.env.BLOB_READ_WRITE_TOKEN) return sendJson(res, 200, { docs: {}, text: {} });
+  try {
+    const blobs = await listAll();
+    sendJson(res, 200, { docs: latestByKey(blobs), text: await readText(blobs) });
+  } catch (e) {
+    sendJson(res, 200, { docs: {}, text: {}, error: 'storage unavailable' });
   }
 }

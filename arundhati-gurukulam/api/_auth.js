@@ -5,14 +5,43 @@ import { createHmac, timingSafeEqual } from 'node:crypto';
 export const COOKIE = 'ag_admin';
 const SESSION_SECONDS = 8 * 60 * 60;
 
-// Rows of the Mandatory Disclosure page that take a PDF (section letter + row
-// number), matching the page's B, C and D tables.
-export const DOC_KEYS = [
+// Rows of the Mandatory Disclosure page (section letter + row number; the
+// staff cadre rows under D4 add PGT / TGT / PRT). Every row can take a PDF and
+// has text the admin can change. Must match the page and the admin page.
+export const ROW_KEYS = [
+  'A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7',
   'B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8', 'B9', 'B10', 'B11', 'B12',
-  'C1', 'C2', 'C3', 'C4',
-  'D4', 'D6', 'D7'
+  'C1', 'C2', 'C3', 'C4', 'C5',
+  'D1', 'D2', 'D3', 'D4', 'D4PGT', 'D4TGT', 'D4PRT', 'D5', 'D6', 'D7',
+  'E1', 'E2', 'E3', 'E4', 'E5', 'E6', 'E7', 'E8', 'E9'
 ];
+// The "Photographs of the school" slots under section E.
+export const PHOTO_KEYS = ['P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'P7'];
+export const DOC_KEYS = [...ROW_KEYS, ...PHOTO_KEYS];
+// Staff rows have a second text, the number / strength column.
+export const TEXT_KEYS = [...ROW_KEYS, ...ROW_KEYS.filter(k => k[0] === 'D').map(k => k + '.count')];
 export const PREFIX = 'disclosure/';
+// Saved text lives in one JSON file; "_" keeps it apart from the row folders.
+export const TEXT_PREFIX = PREFIX + '_text/';
+export const MAX_TEXT = 1000;
+
+// What may be uploaded for a row: PDFs, or photos for the photo slots.
+export function fileRule(key) {
+  if (PHOTO_KEYS.includes(key)) {
+    return { types: ['image/jpeg', 'image/png', 'image/webp'], ext: /\.(jpe?g|png|webp)$/i, maxBytes: 15 * 1024 * 1024, kind: 'photo' };
+  }
+  return { types: ['application/pdf'], ext: /\.pdf$/i, maxBytes: 40 * 1024 * 1024, kind: 'PDF' };
+}
+
+// Keeps only known keys with string values, trimmed and length-capped.
+export function cleanText(values) {
+  const out = {};
+  if (!values || typeof values !== 'object') return out;
+  for (const k of TEXT_KEYS) {
+    if (typeof values[k] === 'string') out[k] = values[k].trim().slice(0, MAX_TEXT);
+  }
+  return out;
+}
 
 export function adminConfig() {
   const user = process.env.ADMIN_USER || 'admin';
@@ -82,7 +111,7 @@ export async function readJson(req) {
 export function latestByKey(blobs) {
   const docs = {};
   for (const b of blobs) {
-    const m = b.pathname.match(/^disclosure\/([A-D]\d{1,2})\/(.+)$/);
+    const m = b.pathname.match(/^disclosure\/([^/_][^/]*)\/(.+)$/);
     if (!m || !DOC_KEYS.includes(m[1])) continue;
     const prev = docs[m[1]];
     const at = new Date(b.uploadedAt).getTime();
