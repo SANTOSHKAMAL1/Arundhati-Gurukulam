@@ -19,7 +19,7 @@
 html,body{margin:0}
 body{background:var(--bg);color:var(--text);font:15px/1.55 "Figtree",system-ui,sans-serif;min-height:100vh}
 h1,h2,h3{font-family:"Caprasimo",Georgia,serif;font-weight:400;margin:0;letter-spacing:-.01em}
-button,input{font:inherit}
+button,input,textarea{font:inherit}
 a{color:inherit}
 .hidden{display:none!important}
 
@@ -87,6 +87,20 @@ input:focus{border-color:var(--rust);box-shadow:0 0 0 3px color-mix(in srgb,var(
 .msg.ok{color:var(--ok)} .msg.err{color:var(--err)}
 .drop{outline:2px dashed var(--rust);outline-offset:3px}
 .foot{margin-top:34px;font-size:13px;color:var(--muted)}
+.row-sub{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:14px 0 6px}
+.text-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:8px}
+.text-grid.two{grid-template-columns:minmax(110px,.32fr) minmax(0,1fr)}
+.field span{display:block;font-size:11.5px;color:var(--muted);margin-bottom:4px}
+.field textarea{width:100%;min-height:42px;padding:9px 12px;border-radius:10px;border:1px solid var(--line);background:#fff;color:var(--text);outline:none;resize:vertical;field-sizing:content;line-height:1.45}
+.field textarea:focus{border-color:var(--rust);box-shadow:0 0 0 3px color-mix(in srgb,var(--rust) 18%,transparent)}
+.field.dirty textarea{border-color:var(--gold);background:#fffaf0}
+.b-edit{background:#e8e0f4;color:#4a3470}
+.hint{font-size:12.5px;color:var(--muted);margin-top:6px}
+.thumb{display:block;width:180px;max-width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:10px;border:1px solid var(--line);margin-top:10px;background:#efe7da}
+.jump{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 6px}
+.jump a{font-size:12.5px;font-weight:600;text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:5px 11px;background:var(--surface)}
+.jump a:hover{background:#fff}
+@media (max-width:560px){ .text-grid.two{grid-template-columns:1fr} }
 @media (max-width:560px){ .row{grid-template-columns:1fr} .num{width:38px;height:38px} .top h1{font-size:16px} }
 </style>
 </head>
@@ -94,7 +108,7 @@ input:focus{border-color:var(--rust);box-shadow:0 0 0 3px color-mix(in srgb,var(
 <header class="top">
   <div class="top-in">
     <span class="seal">AG</span>
-    <div class="grow"><small>Admin</small><h1>Mandatory Disclosure documents</h1></div>
+    <div class="grow"><small>Admin</small><h1>Mandatory Disclosure</h1></div>
     <a class="btn btn-ghost-light btn-sm" href="/#disclosure" target="_blank" rel="noopener">View page</a>
     <button id="logout" class="btn btn-ghost-light btn-sm hidden" type="button">Sign out</button>
   </div>
@@ -103,7 +117,7 @@ input:focus{border-color:var(--rust);box-shadow:0 0 0 3px color-mix(in srgb,var(
 <section id="login" class="login-wrap hidden">
   <form id="login-form" class="card login" autocomplete="on">
     <h2>Sign in</h2>
-    <p>Upload and replace the PDFs on the Mandatory Disclosure page.</p>
+    <p>Edit the details and upload the PDFs and photos on the Mandatory Disclosure page.</p>
     <label for="user">Username</label>
     <input id="user" name="username" type="text" autocomplete="username" required>
     <label for="password">Password</label>
@@ -117,47 +131,88 @@ input:focus{border-color:var(--rust);box-shadow:0 0 0 3px color-mix(in srgb,var(
 <main id="dash" class="main hidden">
   <div class="intro">
     <div>
-      <h2>Documents</h2>
-      <p>Upload a PDF against any row. It appears on the public page straight away, replacing the previous file for that row. Drag a PDF onto a row, or use Upload.</p>
+      <h2>Disclosure details and documents</h2>
+      <p>Change the text of any row and press Save, or upload a PDF against any row (drag it onto the row, or use Upload). Changes appear on the public page straight away. Photos go in the last section.</p>
     </div>
     <div class="stats"><span class="chip"><b id="count-up">0</b> uploaded</span><span class="chip"><b id="count-built">0</b> built-in</span><span class="chip"><b id="count-none">0</b> missing</span></div>
   </div>
   <div id="storage-warn" class="note note-warn hidden"></div>
+  <nav class="jump" aria-label="Sections"><a href="#sec-A">A. General</a><a href="#sec-B">B. Documents</a><a href="#sec-C">C. Academics</a><a href="#sec-D">D. Staff</a><a href="#sec-E">E. Infrastructure</a><a href="#sec-P">Photographs</a></nav>
   <div id="sections"></div>
-  <p class="foot">Only PDF files, up to 40 MB each. Scanned documents are best saved at 150 dpi so they open quickly on phones.</p>
+  <p class="foot">PDFs up to 40 MB each; scanned documents are best saved at 150 dpi so they open quickly on phones. Photos: JPG, PNG or WebP up to 15 MB.</p>
 </main>
 
-<input id="picker" type="file" accept="application/pdf,.pdf" class="hidden">
+<input id="picker" type="file" class="hidden">
 
 <script type="module">
 import { upload } from '/admin/blob-upload.js';
 
-// Must match the rows of the Mandatory Disclosure page.
+const DASH = '—';
+// Must match the rows and default text of the Mandatory Disclosure page.
+// Each row is [key, number, title, text]; a text of 'PDF' marks a row that
+// expects a document. Staff rows add the number / strength column.
 const SECTIONS = [
-  { name: 'B. Documents and Information', rows: [
-    ['B1', 'Copies of Affiliation / Upgradation Letter and recent Extension of Affiliation, if any'],
-    ['B2', 'Copies of Societies / Trust / Company Registration / Renewal Certificate, as applicable'],
-    ['B3', 'Copy of No Objection Certificate (NOC) issued, if applicable, by the State Govt. / UT'],
-    ['B4', 'Copies of Recognition Certificate under RTE Act, 2009, and its renewal if applicable'],
-    ['B5', 'Copy of valid Building Safety Certificate as per the National Building Code'],
-    ['B6', 'Copy of valid Fire Safety Certificate issued by the Competent Authority'],
-    ['B7', 'Copy of the DEO Certificate submitted by the school for Affiliation / Upgradation / Extension of Affiliation, or Self Certification by the School'],
-    ['B8', 'Copies of valid Drinking Water, Health and Sanitation Certificates and Water Testing Report'],
-    ['B9', 'Built-up Area Certificate as per the Annexure-E'],
-    ['B10', 'Land Certificate strictly as per the Annexure-B'],
-    ['B11', 'Details of last 6-month salary of teaching and non-teaching staff'],
-    ['B12', 'Copy of valid Fire Safety Certificate issued by the Competent Authority']
+  { id: 'A', name: 'A. General Information', rows: [
+    ['A1', '1', 'Name of the School', 'Arundhati Gurukulam'],
+    ['A2', '2', 'Affiliation No. (if applicable)', 'Not Applicable'],
+    ['A3', '3', 'School Code (if applicable)', 'Not Applicable'],
+    ['A4', '4', 'Complete Address with Pin Code', 'No.2, Raghavasadanam, Pampa Mahakavi Road, Shankarapuram, Basavanagudi, Bengaluru – 560004, Karnataka'],
+    ['A5', '5', 'Principal Name & Qualification', 'Ms. Sudha Prasad, B.E., B.Ed.'],
+    ['A6', '6', 'School Email ID', 'office@arundhatigurukulam.in'],
+    ['A7', '7', 'Contact Details (Landline / Mobile)', '+91 96860 52212']
   ]},
-  { name: 'C. Result and Academics', rows: [
-    ['C1', 'Fee Structure of the School'],
-    ['C2', 'Annual Academic Calendar'],
-    ['C3', 'List of School Management Committee (SMC)'],
-    ['C4', 'List of Parents Teachers Association (PTA) Members']
+  { id: 'B', name: 'B. Documents and Information', rows: [
+    ['B1', '1', 'Copies of Affiliation / Upgradation Letter and recent Extension of Affiliation, if any', 'Not Applicable'],
+    ['B2', '2', 'Copies of Societies / Trust / Company Registration / Renewal Certificate, as applicable', 'PDF'],
+    ['B3', '3', 'Copy of No Objection Certificate (NOC) issued, if applicable, by the State Govt. / UT', 'PDF'],
+    ['B4', '4', 'Copies of Recognition Certificate under RTE Act, 2009, and its renewal if applicable', 'PDF'],
+    ['B5', '5', 'Copy of valid Building Safety Certificate as per the National Building Code', 'PDF'],
+    ['B6', '6', 'Copy of valid Fire Safety Certificate issued by the Competent Authority', 'PDF'],
+    ['B7', '7', 'Copy of the DEO Certificate submitted by the school for Affiliation / Upgradation / Extension of Affiliation, or Self Certification by the School', 'PDF'],
+    ['B8', '8', 'Copies of valid Drinking Water, Health and Sanitation Certificates and Water Testing Report', 'PDF'],
+    ['B9', '9', 'Built-up Area Certificate as per the Annexure-E', 'PDF'],
+    ['B10', '10', 'Land Certificate strictly as per the Annexure-B', 'PDF'],
+    ['B11', '11', 'Details of last 6-month salary of teaching and non-teaching staff', 'PDF'],
+    ['B12', '12', 'Copy of valid Fire Safety Certificate issued by the Competent Authority', 'PDF']
   ]},
-  { name: 'D. Staff (Teaching)', rows: [
-    ['D4', 'Total No. of Teachers'],
-    ['D6', 'Details of Special Educator'],
-    ['D7', 'Details of Counsellor & Wellness Teacher']
+  { id: 'C', name: 'C. Result and Academics', rows: [
+    ['C1', '1', 'Fee Structure of the School', 'PDF'],
+    ['C2', '2', 'Annual Academic Calendar', 'PDF'],
+    ['C3', '3', 'List of School Management Committee (SMC)', 'PDF'],
+    ['C4', '4', 'List of Parents Teachers Association (PTA) Members', 'PDF'],
+    ['C5', '5', 'Last three-year result of the Board examination (as per applicability)', 'To be updated']
+  ]},
+  { id: 'D', name: 'D. Staff (Teaching)', staff: true, rows: [
+    ['D1', '1', 'Principal', 'Ms. Sudha Prasad, B.E., B.Ed.', '1'],
+    ['D2', '2', 'Vice Principal', DASH, DASH],
+    ['D3', '3', 'Headmistress / Headmaster', DASH, DASH],
+    ['D4', '4', 'Total No. of Teachers (PDF of all teachers)', 'PDF', '26'],
+    ['D4PGT', '4', 'PGT (PDF of PGT teachers)', DASH, '0'],
+    ['D4TGT', '4', 'TGT (PDF of TGT teachers)', 'PDF', '5'],
+    ['D4PRT', '4', 'PRT (PDF of PRT teachers)', 'PDF', '10'],
+    ['D5', '5', 'Teachers Section Ratio', '', '1 : 1.5'],
+    ['D6', '6', 'Details of Special Educator', DASH, DASH],
+    ['D7', '7', 'Details of Counsellor & Wellness Teacher', 'Archana S, Graduation in Child Psychology', '1']
+  ]},
+  { id: 'E', name: 'E. School Infrastructure', rows: [
+    ['E1', '1', 'Total Campus Area of the School (in sq. mtr.)', '3065 sq. mtr.'],
+    ['E2', '2', 'No. and size of the Classrooms (in sq. mtr.)', '24 Classrooms, 47 sq. mtr.'],
+    ['E3', '3', 'No. and size of Laboratories including Computer Labs (in sq. mtr.)', '3 Labs, 56 sq. mtr.'],
+    ['E4', '4', 'No. and size of Library (in sq. mtr.)', '112.4127 sq. mtr.'],
+    ['E5', '5', 'Internet Facility', 'Yes'],
+    ['E6', '6', 'No. of Girls Toilets', '4'],
+    ['E7', '7', 'No. of Boys Toilets', '4'],
+    ['E8', '8', 'No. of CWSN Toilets', '2'],
+    ['E9', '9', 'Link of YouTube video of the inspection of school covering the infrastructure of the school', 'https://youtu.be/ciymyJXLKCQ']
+  ]},
+  { id: 'P', name: 'Photographs of the school', photos: true, rows: [
+    ['P1', '1', 'School Photo front view'],
+    ['P2', '2', 'Science Composite Lab'],
+    ['P3', '3', 'Math Lab'],
+    ['P4', '4', 'Library'],
+    ['P5', '5', 'Playground'],
+    ['P6', '6', 'Ramp/Lift'],
+    ['P7', '7', 'Toilets']
   ]}
 ];
 // Files shipped with the site; an upload for the same row takes precedence.
@@ -168,9 +223,26 @@ const BUILT_IN = {
   B12: '/docs/fire-safety-recommendation-2026.pdf',
   C3: '/docs/school-management-committee-2026-29.pdf'
 };
+const HINTS = {
+  E9: 'Paste a YouTube link. The video plays on the disclosure page itself.'
+};
+
+// Default text per text key ('<row>' and, for staff rows, '<row>.count').
+const DEFAULTS = {};
+const ROWS = {};
+for (const sec of SECTIONS) for (const r of sec.rows) {
+  const [key, , , text, count] = r;
+  ROWS[key] = { sec, row: r };
+  if (sec.photos) continue;
+  DEFAULTS[key] = text === 'PDF' ? '' : text;
+  if (sec.staff) DEFAULTS[key + '.count'] = count;
+}
+const textKeysOf = (key) => ROWS[key].sec.staff ? [key + '.count', key] : [key];
 
 const $ = (id) => document.getElementById(id);
 let docs = {};
+let saved = {};      // text saved through this page (overrides DEFAULTS)
+const drafts = {};   // unsaved edits, kept across re-renders
 let pickFor = null;
 
 async function api(path, body) {
@@ -192,23 +264,48 @@ function show(which) {
 function sizeText(n) { return n ? (n / 1048576).toFixed(n > 1048576 ? 1 : 2) + ' MB' : ''; }
 function dateText(s) { try { return new Date(s).toLocaleString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }); } catch (e) { return ''; } }
 function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
+const has = (o, k) => Object.prototype.hasOwnProperty.call(o, k);
+const current = (k) => has(saved, k) ? saved[k] : DEFAULTS[k];
+const shown = (k) => has(drafts, k) ? drafts[k] : current(k);
 
-function render() {
-  let up = 0, built = 0, none = 0;
-  $('sections').innerHTML = SECTIONS.map(sec => `
-    <div class="section"><h3>${esc(sec.name)}</h3><div class="rows">${sec.rows.map(([key, title]) => {
-      const d = docs[key], b = BUILT_IN[key];
-      let badge, file = '', view = '';
-      if (d) { up++; badge = '<span class="badge b-up">● Uploaded</span>'; file = esc(d.name) + ' · ' + sizeText(d.size) + ' · ' + dateText(d.uploadedAt); view = d.url; }
-      else if (b) { built++; badge = '<span class="badge b-built">● Built-in file</span>'; file = esc(b.split('/').pop()); view = b; }
-      else { none++; badge = '<span class="badge b-none">○ No PDF yet</span>'; }
-      return `<div class="row" data-key="${key}">
-        <span class="num">${key.slice(1)}</span>
+function field(k, label) {
+  const dirty = has(drafts, k) && drafts[k] !== current(k);
+  return `<label class="field${dirty ? ' dirty' : ''}"><span>${esc(label)}</span><textarea rows="1" data-text="${k}" spellcheck="true">${esc(shown(k))}</textarea></label>`;
+}
+
+function renderRow(sec, r, counts) {
+  const [key, n, title, text] = r;
+  const d = docs[key], b = BUILT_IN[key];
+  const photo = !!sec.photos;
+  const what = photo ? 'photo' : 'PDF';
+  let badge, file = '', view = '';
+  if (d) { counts.up++; badge = '<span class="badge b-up">● Uploaded</span>'; file = esc(d.name) + ' · ' + sizeText(d.size) + ' · ' + dateText(d.uploadedAt); view = d.url; }
+  else if (b) { counts.built++; badge = '<span class="badge b-built">● Built-in file</span>'; file = esc(b.split('/').pop()); view = b; }
+  else {
+    const needed = photo || (text === 'PDF' && !current(key));
+    if (needed) counts.none++;
+    badge = `<span class="badge b-none">○ No ${what} yet${needed ? '' : ' (optional)'}</span>`;
+  }
+  const keys = photo ? [] : textKeysOf(key);
+  const edited = keys.some(k => has(saved, k));
+  const texts = photo ? '' : `
+          <div class="row-sub">Text on the page</div>
+          <div class="text-grid${sec.staff ? ' two' : ''}">${sec.staff ? field(key + '.count', 'Number / strength') + field(key, 'Name and qualifications') : field(key, text === 'PDF' ? 'Details (optional; shown with the PDF)' : 'Details')}</div>
+          ${HINTS[key] ? `<div class="hint">${esc(HINTS[key])}</div>` : ''}
+          <div class="actions">
+            <button class="btn btn-dark btn-sm" data-act="save" type="button">Save text</button>
+            ${edited ? '<button class="btn btn-line btn-sm" data-act="reset" type="button">Reset to original</button><span class="badge b-edit">Edited</span>' : ''}
+          </div>
+          <div class="row-sub">${photo ? 'Photo' : 'PDF'}</div>`;
+  return `<div class="row" data-key="${key}">
+        <span class="num">${esc(n)}</span>
         <div>
           <div class="row-title">${esc(title)}</div>
+          ${texts}
           <div class="status">${badge}<span class="file">${file}</span></div>
+          ${photo && view ? `<img class="thumb" src="${esc(view)}" alt="${esc(title)}">` : ''}
           <div class="actions">
-            <button class="btn btn-dark btn-sm" data-act="upload" type="button">${d || b ? 'Replace PDF' : 'Upload PDF'}</button>
+            <button class="btn btn-dark btn-sm" data-act="upload" type="button">${d || b ? 'Replace ' + what : 'Upload ' + what}</button>
             ${view ? `<a class="btn btn-line btn-sm" href="${esc(view)}" target="_blank" rel="noopener">View</a>` : ''}
             ${d ? `<button class="btn btn-danger btn-sm" data-act="remove" type="button">Remove upload</button>` : ''}
           </div>
@@ -216,32 +313,64 @@ function render() {
           <div class="msg"></div>
         </div>
       </div>`;
-    }).join('')}</div></div>`).join('');
-  $('count-up').textContent = up; $('count-built').textContent = built; $('count-none').textContent = none;
+}
+
+function render() {
+  const counts = { up: 0, built: 0, none: 0 };
+  $('sections').innerHTML = SECTIONS.map(sec => `
+    <div class="section" id="sec-${sec.id}"><h3>${esc(sec.name)}</h3><div class="rows">${sec.rows.map(r => renderRow(sec, r, counts)).join('')}</div></div>`).join('');
+  $('count-up').textContent = counts.up; $('count-built').textContent = counts.built; $('count-none').textContent = counts.none;
 }
 
 async function refresh() {
   const j = await api('/api/disclosure-docs');
   docs = j.docs || {};
+  saved = j.text || {};
   render();
 }
 
 function rowEl(key) { return document.querySelector(`.row[data-key="${key}"]`); }
 function setMsg(key, text, kind) { const m = rowEl(key).querySelector('.msg'); m.textContent = text; m.className = 'msg ' + (kind || ''); }
 
+async function saveText(key, reset) {
+  const next = Object.assign({}, saved);
+  for (const k of textKeysOf(key)) {
+    const v = reset ? DEFAULTS[k] : String(shown(k)).trim();
+    if (v === DEFAULTS[k]) delete next[k]; else next[k] = v;
+  }
+  rowEl(key).querySelectorAll('button').forEach(b => b.disabled = true);
+  try {
+    const j = await api('/api/admin/text', { values: next });
+    saved = j.text || {};
+    for (const k of textKeysOf(key)) delete drafts[k];
+    render();
+    setMsg(key, reset ? 'Back to the original text. It is live on the page now.' : 'Saved. It is live on the page now.', 'ok');
+  } catch (e) {
+    if (e.status === 401) { show('login'); return; }
+    rowEl(key).querySelectorAll('button').forEach(b => b.disabled = false);
+    setMsg(key, 'Could not save: ' + e.message, 'err');
+  }
+}
+
 async function uploadFile(key, file) {
   if (!file) return;
-  if (!/\.pdf$/i.test(file.name) && file.type !== 'application/pdf') { setMsg(key, 'Please choose a PDF file.', 'err'); return; }
-  if (file.size > 40 * 1048576) { setMsg(key, 'This file is larger than 40 MB. Please compress it first.', 'err'); return; }
+  const photo = !!ROWS[key].sec.photos;
+  const ext = (file.name.match(/\.(pdf|jpe?g|png|webp)$/i) || [])[1];
+  if (photo ? !/^(jpe?g|png|webp)$/i.test(ext || '') : !/^pdf$/i.test(ext || '') && file.type !== 'application/pdf') {
+    setMsg(key, photo ? 'Please choose a JPG, PNG or WebP photo.' : 'Please choose a PDF file.', 'err'); return;
+  }
+  const limit = photo ? 15 : 40;
+  if (file.size > limit * 1048576) { setMsg(key, `This file is larger than ${limit} MB. Please compress it first.`, 'err'); return; }
   const row = rowEl(key), bar = row.querySelector('.bar'), fill = bar.querySelector('i');
   row.querySelectorAll('button').forEach(b => b.disabled = true);
   bar.classList.remove('hidden'); fill.style.width = '0%';
   setMsg(key, 'Uploading ' + file.name + '…');
   try {
-    const safe = file.name.replace(/\.pdf$/i, '').replace(/[^a-zA-Z0-9._-]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 80) || 'document';
-    const blob = await upload(`disclosure/${key}/${safe}.pdf`, file, {
+    const safe = file.name.replace(/\.[a-z0-9]+$/i, '').replace(/[^a-zA-Z0-9._-]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 80) || (photo ? 'photo' : 'document');
+    const suffix = photo ? '.' + ext.toLowerCase().replace('jpeg', 'jpg') : '.pdf';
+    const blob = await upload(`disclosure/${key}/${safe}${suffix}`, file, {
       access: 'public',
-      contentType: 'application/pdf',
+      contentType: photo ? (file.type || 'image/jpeg') : 'application/pdf',
       handleUploadUrl: '/api/admin/upload',
       onUploadProgress: (p) => { fill.style.width = Math.round(p.percentage) + '%'; }
     });
@@ -257,7 +386,8 @@ async function uploadFile(key, file) {
 }
 
 async function removeUpload(key) {
-  if (!confirm('Remove the uploaded PDF for this row?' + (BUILT_IN[key] ? ' The page will go back to the built-in file.' : ''))) return;
+  const what = ROWS[key].sec.photos ? 'photo' : 'PDF';
+  if (!confirm(`Remove the uploaded ${what} for this row?` + (BUILT_IN[key] ? ' The page will go back to the built-in file.' : ''))) return;
   try { await api('/api/admin/delete', { key }); await refresh(); setMsg(key, 'Removed.', 'ok'); }
   catch (e) { if (e.status === 401) show('login'); else setMsg(key, e.message, 'err'); }
 }
@@ -265,8 +395,19 @@ async function removeUpload(key) {
 $('sections').addEventListener('click', (e) => {
   const btn = e.target.closest('button[data-act]'); if (!btn) return;
   const key = btn.closest('.row').dataset.key;
-  if (btn.dataset.act === 'upload') { pickFor = key; $('picker').value = ''; $('picker').click(); }
+  if (btn.dataset.act === 'upload') {
+    pickFor = key;
+    $('picker').accept = ROWS[key].sec.photos ? 'image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp' : 'application/pdf,.pdf';
+    $('picker').value = ''; $('picker').click();
+  }
   if (btn.dataset.act === 'remove') removeUpload(key);
+  if (btn.dataset.act === 'save') saveText(key, false);
+  if (btn.dataset.act === 'reset' && confirm('Put back the original text for this row?')) saveText(key, true);
+});
+$('sections').addEventListener('input', (e) => {
+  const k = e.target.dataset && e.target.dataset.text; if (!k) return;
+  drafts[k] = e.target.value;
+  e.target.closest('.field').classList.toggle('dirty', e.target.value !== current(k));
 });
 $('picker').addEventListener('change', () => { const f = $('picker').files[0]; if (pickFor && f) uploadFile(pickFor, f); });
 ['dragover', 'dragleave', 'drop'].forEach(ev => $('sections').addEventListener(ev, (e) => {
@@ -275,6 +416,9 @@ $('picker').addEventListener('change', () => { const f = $('picker').files[0]; i
   if (ev === 'dragover') row.classList.add('drop'); else row.classList.remove('drop');
   if (ev === 'drop' && e.dataTransfer.files[0]) uploadFile(row.dataset.key, e.dataTransfer.files[0]);
 }));
+window.addEventListener('beforeunload', (e) => {
+  if (Object.keys(drafts).some(k => drafts[k] !== current(k))) { e.preventDefault(); e.returnValue = ''; }
+});
 
 $('login-form').addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -298,7 +442,7 @@ async function start() {
   if (!s.signedIn) { show('login'); $('user').focus(); return; }
   show('dash');
   $('storage-warn').classList.toggle('hidden', s.storageSet);
-  $('storage-warn').textContent = 'File storage is not connected yet: create a Blob store in Vercel (Storage → Blob) and connect it to this project, then redeploy. Until then uploads will fail.';
+  $('storage-warn').textContent = 'File storage is not connected yet: create a Blob store in Vercel (Storage → Blob) and connect it to this project, then redeploy. Until then uploads and saving text will fail.';
   await refresh().catch(() => render());
 }
 start();
