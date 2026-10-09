@@ -170,10 +170,6 @@ const SECTIONS = [
     ['B6', '6', 'Copy of valid Fire Safety Certificate issued by the Competent Authority', 'PDF'],
     ['B7', '7', 'Copy of the DEO Certificate submitted by the school for Affiliation / Upgradation / Extension of Affiliation, or Self Certification by the School', 'PDF'],
     ['B8', '8', 'Copies of valid Drinking Water, Health and Sanitation Certificates and Water Testing Report', 'PDF'],
-    ['B9', '9', 'Built-up Area Certificate as per the Annexure-E', 'PDF'],
-    ['B10', '10', 'Land Certificate strictly as per the Annexure-B', 'PDF'],
-    ['B11', '11', 'Details of last 6-month salary of teaching and non-teaching staff', 'PDF'],
-    ['B12', '12', 'Copy of valid Fire Safety Certificate issued by the Competent Authority', 'PDF']
   ]},
   { id: 'C', name: 'C. Result and Academics', rows: [
     ['C1', '1', 'Fee Structure of the School', 'PDF'],
@@ -204,15 +200,6 @@ const SECTIONS = [
     ['E7', '7', 'No. of Boys Toilets', '4'],
     ['E8', '8', 'No. of CWSN Toilets', '2'],
     ['E9', '9', 'Link of YouTube video of the inspection of school covering the infrastructure of the school', 'https://youtu.be/ciymyJXLKCQ']
-  ]},
-  { id: 'P', name: 'Photographs of the school', photos: true, rows: [
-    ['P1', '1', 'School Photo front view'],
-    ['P2', '2', 'Science Composite Lab'],
-    ['P3', '3', 'Math Lab'],
-    ['P4', '4', 'Library'],
-    ['P5', '5', 'Playground'],
-    ['P6', '6', 'Ramp/Lift'],
-    ['P7', '7', 'Toilets']
   ]}
 ];
 // Files shipped with the site; an upload for the same row takes precedence.
@@ -220,11 +207,10 @@ const BUILT_IN = {
   B4: '/docs/water-test-report-july-2026.pdf',
   B7: '/docs/school-management-committee-2026-29.pdf',
   B8: '/docs/water-test-report-july-2026.pdf',
-  B12: '/docs/fire-safety-recommendation-2026.pdf',
   C3: '/docs/school-management-committee-2026-29.pdf'
 };
 const HINTS = {
-  E9: 'Paste a YouTube link. The video plays on the disclosure page itself.'
+  E9: 'Paste a YouTube link. The video opens in a separate window.'
 };
 
 // Default text per text key ('<row>' and, for staff rows, '<row>.count').
